@@ -11,7 +11,7 @@ typedef struct {
     int data_2;
 } data_t;
 
-/* Static allocation of data is preffered */
+/* Static allocation of data is preferred */
 data_t data[BUFFER_LENGTH];
 
 /* LIFO buffer structure declaration */
@@ -29,6 +29,11 @@ typedef enum {
     RC_LBUF_ERR_FULL,
     RC_LBUF_ERR_EMPTY,
 } lifo_rc_t;
+
+void debug_lifo_pointer(void)
+{
+    printf("\nHead: %d\n", lifo_buf_ctrl.head - lifo_buf_ctrl.base);
+}
 
 /* Function to check if the LIFO buffer is empty */
 lifo_rc_t lifo_is_bufEmpty (void)
@@ -102,53 +107,71 @@ void lifo_init (void)
     lifo_buf_ctrl.head = lifo_buf_ctrl.base;
 }
 
+/* De-Initialize the LIFO buffer */
+void lifo_deInit (void)
+{
+    /* Set the buffer size */
+    lifo_buf_ctrl.length = 0;
+    /* Make the base of the buffer point to NULL */
+    lifo_buf_ctrl.base = NULL;
+    /* Make the head point to the NULL */
+    lifo_buf_ctrl.head = NULL;
+}
+
 int main()
 {
     printf("\nLIFO Buffer Implementation. Length of buffer: %d", BUFFER_LENGTH);
     char symbol;
     data_t element;
     lifo_rc_t rc;
-
+    
+    /* Initialize the LIFO buffer */
     lifo_init();
 
+    printf("\nEnter 1 to push, 2 to pop, and 3 to exit: ");
+
+    /* 1 to push, 2 to pop, 3 to exit */
     while (1)
     {
-        printf("\nEnter 1 for push, 2 for pop, 3 for exit: ");
         scanf("%c", &symbol);
 
         if (symbol == '1') {
-            printf("\nEnter the elements to be pushed: \nElement 1: ");
+            /* Get the input and push if the buffer is not full */
+            printf("\nEnter the element to be pushed: \nData 1: ");
             scanf("%d", &element.data_1);
-            printf("Element 2: ");
+            printf("Data 2: ");
             scanf("%d", &element.data_2);
             rc = lifo_push(&element);
+            debug_lifo_pointer();
 
             if (rc == RC_LBUF_OK) {
-                printf("\nElement pushed successfully.");
+                printf("\nData pushed successfully.\n");
             }
             else {
-                printf("\nError - buffer full. Pop an element and try again.");
+                printf("\nError - buffer full. Pop an element and try again.\n");
             }
         }
         else if (symbol == '2') {
+            /* Pop if the buffer is not empty  */
             rc = lifo_pop(&element);
-            
+            debug_lifo_pointer();
+
             if (rc == RC_LBUF_OK) {
                 printf("\nElement popped successfully.");
-                printf("\nElement 1: %d, Element 2: %d", element.data_1, element.data_2);
+                printf("\nData 1: %d, Data 2: %d\n", element.data_1, element.data_2);
             }
             else {
-                printf("\nError - buffer empty. Push an element and try again.");
+                printf("\nError - buffer empty. Push an element and try again.\n");
             }
         }
         else if (symbol == '3') {
+            /* Exit on 3 */
             break;
-        }
-        else {
-            printf("\nIncorrect choice, try again.");
         }
     }
 
+    /* De-init the pointers */
+    lifo_deInit();
     printf("\nExited program");
     return 0;
 }
