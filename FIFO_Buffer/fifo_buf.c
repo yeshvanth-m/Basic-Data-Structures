@@ -74,16 +74,12 @@ void fifo_increment_pointer (data_t** pointer)
 /* Function to check if the FIFO buffer is empty */
 fifo_rc_t fifo_is_bufEmpty (void)
 {
-    fifo_rc_t rc;
+    fifo_rc_t rc = RC_FBUF_OK;
 
     /* If the count is 0, then the buffer is empty */
     if (fifo_buf_ctrl.count == 0) 
     {
         rc = RC_FBUF_ERR_EMPTY;
-    }
-    else 
-    {
-        rc = RC_FBUF_OK;
     }
     return rc;
 }
@@ -91,10 +87,10 @@ fifo_rc_t fifo_is_bufEmpty (void)
 /* Funtion to add an element into the FIFO buffer */
 void fifo_add (data_t *element)
 {
-    /* If the count is full, then move the tail for overwriting */
+    /* If the count is full, then move the head for overwriting */
     if (fifo_buf_ctrl.count == fifo_buf_ctrl.length) 
     {
-        fifo_increment_pointer(&fifo_buf_ctrl.tail);
+        fifo_increment_pointer(&fifo_buf_ctrl.head);
     }
 
     /* Increment the count only if the buffer is not full */
@@ -104,11 +100,11 @@ void fifo_add (data_t *element)
     }
 
     /* Add the element to the head of the buffer */
-    (void) memset ((void *)fifo_buf_ctrl.head, 0u, sizeof(element));
-    (void) memcpy ((void *)fifo_buf_ctrl.head, (void *)element, sizeof(element));
+    (void) memset ((void *)fifo_buf_ctrl.tail, 0u, sizeof(element));
+    (void) memcpy ((void *)fifo_buf_ctrl.tail, (void *)element, sizeof(element));
 
-    /* Increment the pointer of circular buffer  */
-    fifo_increment_pointer(&fifo_buf_ctrl.head);
+    /* Increment the tail pointer of circular buffer */
+    fifo_increment_pointer(&fifo_buf_ctrl.tail);
 }
 
 /* Function to remove an element from the FIFO buffer */
@@ -121,10 +117,10 @@ fifo_rc_t fifo_remove (data_t *element)
     {
         /* Decrement the count on removing an element if the buffer is not empty */
         fifo_buf_ctrl.count--;
-        (void) memcpy ((void *)element, (void *)fifo_buf_ctrl.tail, sizeof(element));
+        (void) memcpy ((void *)element, (void *)fifo_buf_ctrl.head, sizeof(element));
 
         /* Move the tail after removing an element from the tail */
-        fifo_increment_pointer(&fifo_buf_ctrl.tail);
+        fifo_increment_pointer(&fifo_buf_ctrl.head);
     }
     return rc;
 }
@@ -137,16 +133,16 @@ fifo_rc_t fifo_traverse (void)
 
     if (rc == RC_FBUF_OK) 
     {
-        data_t *traverse_var = fifo_buf_ctrl.tail;
+        data_t *traverse_var = fifo_buf_ctrl.head;
         int element_number = 1;
         do
         {
             /* Print the elements */
-            printf ("Element %d: Data 1: %d, Data 2: %d\n", element_number++, traverse_var->data_1, traverse_var->data_2);
+            printf ("Element %d: Data A: %d, Data B: %d\n", element_number++, traverse_var->data_1, traverse_var->data_2);
             
             /* Move the traverse pointer till we hit the head */
             fifo_increment_pointer(&traverse_var);
-        } while (traverse_var != fifo_buf_ctrl.head);
+        } while (traverse_var != fifo_buf_ctrl.tail);
     }
     return rc;
 }
@@ -187,7 +183,7 @@ int main()
     /* Initialize the FIFO circular buffer */
     fifo_init();
 
-    printf("\nEnter 1 to add, 2 to remove, 3 to exit: ");
+    printf("\nEnter 1 to add, 2 to remove, 3 to traverse and 4 to exit: ");
 
     /* 1 to add, 2 to remove, 3 to traverse, and 4 to exit */
     while (symbol != '4')
@@ -199,9 +195,9 @@ int main()
             case '1':
             {
                 /* Add the element to the buffer as its an unlimited buffer */
-                printf("\nEnter the data to be added: \nData 1: ");
+                printf("\nEnter the data to be added: \nData A: ");
                 scanf("%d", &element.data_1);
-                printf("Data 2: ");
+                printf("Data B: ");
                 scanf("%d", &element.data_2);
                 fifo_add(&element);
 
@@ -217,7 +213,7 @@ int main()
                 
                 if (rc == RC_FBUF_OK) {
                     printf("\nElement removed successfully.");
-                    printf("\nData 1: %d, Data 2: %d\n", element.data_1, element.data_2);
+                    printf("\nData A: %d, Data B: %d\n", element.data_1, element.data_2);
                 }
                 else {
                     printf("\nError - buffer empty. Add an element and try again.\n");

@@ -52,16 +52,12 @@ void debug_lifo_pointer(void)
 /* Function to check if the LIFO buffer is empty */
 lifo_rc_t lifo_is_bufEmpty (void)
 {
-    lifo_rc_t rc;
+    lifo_rc_t rc = RC_LBUF_OK;
 
     /* If the head is pointing to base, then the buffer is empty */
     if (lifo_buf_ctrl.head == lifo_buf_ctrl.base) 
     {
         rc = RC_LBUF_ERR_EMPTY;
-    }
-    else 
-    {
-        rc = RC_LBUF_OK;
     }
     return rc;
 }
@@ -69,16 +65,12 @@ lifo_rc_t lifo_is_bufEmpty (void)
 /* Function to check if the LIFO buffer is full */
 lifo_rc_t lifo_is_bufFull (void)
 {
-    lifo_rc_t rc;
+    lifo_rc_t rc = RC_LBUF_OK;
 
     /* If the head is greater than or equal to the base + length then buffer is full */
     if (lifo_buf_ctrl.head >= (lifo_buf_ctrl.base + lifo_buf_ctrl.length)) 
     {
         rc = RC_LBUF_ERR_FULL;
-    }
-    else 
-    {
-        rc = RC_LBUF_OK;
     }
     return rc;
 }
@@ -95,7 +87,7 @@ lifo_rc_t lifo_push (data_t *element)
         (void) memset ((void *)lifo_buf_ctrl.head, 0u, sizeof(element));
         (void) memcpy ((void *)lifo_buf_ctrl.head, (void *)element, sizeof(element));
         /* Make the head point to the next element */
-        lifo_buf_ctrl.head += 1;
+        lifo_buf_ctrl.head++;
     }
     return rc;
 }
@@ -111,7 +103,7 @@ lifo_rc_t lifo_pop (data_t *element)
         /* Buffer is not empty then remove the element from the buffer */
         (void) memcpy ((void *)element, (void *)(lifo_buf_ctrl.head - 1), sizeof(element));
         /* Make the head point to the previous element */
-        lifo_buf_ctrl.head -= 1;
+        lifo_buf_ctrl.head--;
     }
     return rc;
 }
@@ -131,7 +123,7 @@ lifo_rc_t lifo_traverse (void)
         {
             /* Traverse through the LIFO buffer till hitting the base */
             var--;
-            printf ("Element %d: Data 1: %d, Data 2: %d\n", element_number--, var->data_1, var->data_2);
+            printf ("Element %d: Data A: %d, Data B: %d\n", element_number--, var->data_1, var->data_2);
         } while(var != lifo_buf_ctrl.base);
     }
     return rc;
@@ -181,9 +173,9 @@ int main()
             case '1': 
             {
                 /* Get the input and push if the buffer is not full */
-                printf("\nEnter the element to be pushed: \nData 1: ");
+                printf("\nEnter the element to be pushed: \nData A: ");
                 scanf("%d", &element.data_1);
-                printf("Data 2: ");
+                printf("Data B: ");
                 scanf("%d", &element.data_2);
                 rc = lifo_push(&element);
                 debug_lifo_pointer();
@@ -207,7 +199,7 @@ int main()
                 if (rc == RC_LBUF_OK) 
                 {
                     printf("\nElement popped successfully.");
-                    printf("\nData 1: %d, Data 2: %d\n", element.data_1, element.data_2);
+                    printf("\nData A: %d, Data B: %d\n", element.data_1, element.data_2);
                 }
                 else 
                 {
