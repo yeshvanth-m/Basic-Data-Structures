@@ -161,12 +161,11 @@ int main()
     /* Initialize the LIFO buffer */
     lifo_init();
 
-    printf("\nEnter 1 to push, 2 to pop, 3 to traverse, and 4 to exit: ");
-
     /* 1 to push, 2 to pop, 3 to exit */
     while (symbol != '4')
     {
-        scanf("%c", &symbol);
+        printf("\nEnter 1 to push, 2 to pop, 3 to traverse, and 4 to exit: ");
+        scanf(" %c", &symbol);
 
         switch (symbol)
         {

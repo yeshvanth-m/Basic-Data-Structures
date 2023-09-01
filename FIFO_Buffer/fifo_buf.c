@@ -183,12 +183,11 @@ int main()
     /* Initialize the FIFO circular buffer */
     fifo_init();
 
-    printf("\nEnter 1 to add, 2 to remove, 3 to traverse and 4 to exit: ");
-
     /* 1 to add, 2 to remove, 3 to traverse, and 4 to exit */
     while (symbol != '4')
     {
-        scanf("%c", &symbol);
+        printf("\nEnter 1 to add, 2 to remove, 3 to traverse and 4 to exit: ");
+        scanf(" %c", &symbol);
 
         switch (symbol)
         {
